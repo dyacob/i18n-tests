@@ -51,7 +51,8 @@ for (let i=0;i<tests.length;i++) { tests[i].style.wordBreak = value }
 		var step1 = textIn.replace( spacesBetweenLetters, '$1፡$3' );
 		var step2 = step1.replace( spacesBetweenLetterAndNumberOrOpenPunct, '$1፡$3' );
 		var step3 = step2.replace( spacesBetweenNumberOrClosePunctAndLetter, '$1፡$3' );
-		var textOut = step3.replace( endOfLine, '$1፡\n' );
+		var step4 = step3.replace( endOfLine, '$1፡\n' );
+		var textOut = step4.replace( /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])$/, '$1፡' );
 		return textOut;
 	}
 	function substituteSpaces() {
