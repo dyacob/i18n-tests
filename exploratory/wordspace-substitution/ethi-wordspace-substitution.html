@@ -31,17 +31,32 @@ for (let i=0;i<tests.length;i++) { tests[i].style.wordBreak = value }
 </script>
     <script type="text/javascript">
 	// Replace one or more space symbols with Ethiopic Wordspace
-	let oneOrMoreSpaces = /([\u1200-\u137F])( +)([\u1200-\u137F])/g;
+	//
+	// Letters: [\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E]
+	// Nonpunctuation symbols: [\u1200-\u135A\u1369-\u138F\u2D80-\u2DDE\uAB01-\uAB2E]
+	// Punctuatioon symbols: [\u135B-\u1368]
+	// Numbers: [\u1369-\u137C]
+	// Numbers And Punctuation: [\u1358-\u137C]
+	// Tonal Marks: [\u1390-\u1399]  -these absolutely should not be applicable
+	// Opening Punctuation: [\u7B\u5B\u28\uAB\u2039\u201C\u2018]  /  {[(«‹“‘
+	// Closing Punctuation: [\u2019\u201D\u203A\uBB\u29\u5D\u7D]  /  ’”›»)]}
+
+
+	let spacesBetweenLetters = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])( +)([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])/g;
+	let spacesBetweenLetterAndNumberOrOpenPunct = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])( +)([{\[(\uAB\u2039\u201C\u2018\u1369-\u137C])/g;
+	let spacesBetweenNumberOrClosePunctAndLetter = /([\u2019\u201D\u203A\uBB)\]}\u1369-\u137C])( +)([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])/g;
+	let endOfLine = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])\n/g;
 
 	function spaceToWordspace(textIn) {
-		var textOut = textIn.replace( oneOrMoreSpaces, '$1፡$3' );
+		var step1 = textIn.replace( spacesBetweenLetters, '$1፡$3' );
+		var step2 = step1.replace( spacesBetweenLetterAndNumberOrOpenPunct, '$1፡$3' );
+		var step3 = step2.replace( spacesBetweenNumberOrClosePunctAndLetter, '$1፡$3' );
+		var textOut = step3.replace( endOfLine, '$1፡\n' );
 		return textOut;
 	}
 	function substituteSpaces() {
-alert( "In Space" );
 		var textIn = document.getElementById('in').value;
 		var textOut = spaceToWordspace( textIn );
-alert( textOut );
 		document.getElementById('normal').innerHTML = textOut;
 		document.getElementById('textarea').value = textOut;
       	}
