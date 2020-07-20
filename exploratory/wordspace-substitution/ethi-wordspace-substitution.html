@@ -45,7 +45,17 @@ for (let i=0;i<tests.length;i++) { tests[i].style.wordBreak = value }
 	let spacesBetweenLetters = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])( +)([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])/g;
 	let spacesBetweenLetterAndNumberOrOpenPunct = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])( +)([{\[(\uAB\u2039\u201C\u2018\u1369-\u137C])/g;
 	let spacesBetweenNumberOrClosePunctAndLetter = /([\u2019\u201D\u203A\uBB)\]}\u1369-\u137C])( +)([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])/g;
-	let endOfLine = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])\n/g;
+	let endOfLine = /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E\u2019\u201D\u203A\uBB\u29\u5D\u7D])\n/g;
+
+	var fromSpaceToWordspace = true;
+	function setSubstitutionDirection (value) {
+		if( value == "fromAscii" ) {
+			fromSpaceToWordspace = true;
+		}
+		else {
+			fromSpaceToWordspace = false;
+		}
+	}
 
 	function spaceToWordspace(textIn) {
 		var step1 = textIn.replace( spacesBetweenLetters, '$1፡$3' );
@@ -55,9 +65,21 @@ for (let i=0;i<tests.length;i++) { tests[i].style.wordBreak = value }
 		var textOut = step4.replace( /([\u1200-\u135A\u1380-\u138F\u2D80-\u2DDE\uAB01-\uAB2E])$/, '$1፡' );
 		return textOut;
 	}
+	function wordspaceToSpace(textIn) {
+		var step1 = textIn.replace( /፡፡/g, '።');
+		var step2 = step1.replace( /፡-/g, '፦' );
+		var textOut = step2.replace( /( )?፡( )?/g, ' ' );
+		return textOut;
+	}
 	function substituteSpaces() {
 		var textIn = document.getElementById('in').value;
-		var textOut = spaceToWordspace( textIn );
+		var textOut;
+		if( fromSpaceToWordspace ) {
+			textOut = spaceToWordspace( textIn );
+		}
+		else {
+			textOut = wordspaceToSpace( textIn );
+		}
 		document.getElementById('normal').innerHTML = textOut;
 		document.getElementById('textarea').value = textOut;
       	}
@@ -81,7 +103,12 @@ Set the font to <input id="fontFamily" type="text" onChange="setFont(this.value)
 
 <!-- INPUT AREA -->
 <div><textarea id="in" type="text" placeholder="Add text to be tested text here and click on GO." dir="auto"></textarea> 
-<button onClick="setText(document.getElementById('in').value);substituteSpaces()" id="go" style="vertical-align: top;">Go</button></div>
+<button onClick="setText(document.getElementById('in').value);substituteSpaces()" id="go" style="vertical-align: top;">Go</button>
+<br/>
+<label onClick="setSubstitutionDirection('fromEthi')"><input type="radio" checked value="fromEthi" id="fromEthi" name="substitutionDirection"/><code>Wordspace to Space</code></label>
+<label onClick="setSubstitutionDirection('fromAscii')"><input type="radio" value="fromAscii" id="fromAscii" name="substitutionDirection"/><code>Space to Wordspace</code></label>
+</input>
+</div>
 
 
 
